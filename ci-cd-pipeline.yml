@@ -1,0 +1,41 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: Build
+  displayName: 'Build Stage'
+  steps:
+  - task: UseNode@2
+    inputs:
+      version: '14.x'
+  - script: |
+      npm install
+      npm run build
+    displayName: 'Install dependencies and build'
+
+- job: Test
+  displayName: 'Test Stage'
+  dependsOn: Build
+  steps:
+  - task: UseNode@2
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    inputs:
+      version: '14.x'
+  - script: |
+      npm install
+      npm test
+      npm run coverage
+    displayName: 'Run tests and code coverage'
+
+- job: Deploy
+  displayName: 'Deploy Stage'
+  dependsOn: Test
+  steps:
+  - script: echo "Deploying to staging environment"
+    displayName: 'Deploy to staging'
+
